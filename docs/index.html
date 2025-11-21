@@ -1,869 +1,555 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Modliste — schön formatiert</title>
-  <style>
-    :root{
-      --bg:#0f1720;
-      --card:#0b1220;
-      --muted:#9aa6b2;
-      --accent:#4dd0e1;
-      --glass: rgba(255,255,255,0.03);
-      --gap:18px;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+<meta charset="UTF-8">
+<title>Modliste</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: #0a0a0a;
+        color: #e5e5e5;
     }
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071021 0%, #081223 60%);color:#e6f0f3}
-    header{
-      padding:32px;
-      text-align:center;
-      border-bottom:1px solid rgba(255,255,255,0.03);
-      margin-bottom:8px;
+
+    h1, h2 {
+        color: #d4af37; /* Gold */
     }
-    header h1{margin:0;font-size:1.6rem;letter-spacing: -0.5px}
-    header p{color:var(--muted);margin:8px 0 0;font-size:0.95rem}
-    .container{max-width:1100px;margin:28px auto;padding:0 20px;}
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 340px;
-      gap:var(--gap);
-      align-items:start;
+
+    a {
+        color: #d4af37;
+        text-decoration: none;
     }
-    @media (max-width:980px){ .grid{grid-template-columns:1fr} }
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius:12px;
-      padding:18px;
-      box-shadow: 0 6px 20px rgba(2,6,23,0.6);
-      border: 1px solid rgba(255,255,255,0.03);
+
+    a:hover {
+        text-decoration: underline;
     }
-    .section-title{display:flex;align-items:baseline;gap:10px}
-    .section-title h2{margin:0;font-size:1.05rem}
-    .section-title span{color:var(--muted);font-size:0.9rem}
-    .mods{display:flex;flex-direction:column;gap:12px;margin-top:14px}
-    .mod{
-      display:grid;
-      grid-template-columns: 1fr auto;
-      gap:12px;
-      padding:12px;
-      background:var(--glass);
-      border-radius:10px;
-      align-items:center;
-      border:1px solid rgba(255,255,255,0.02);
+
+    .container {
+        width: calc(100% - 300px);
+        padding: 30px;
+        padding-right: 330px;
+        box-sizing: border-box;
     }
-    .mod h3{margin:0;font-size:0.98rem}
-    .meta{color:var(--muted);font-size:0.85rem;margin-top:6px}
-    .links{display:flex;flex-direction:column;gap:6px;align-items:end}
-    .links a{
-      text-decoration:none;
-      background:linear-gradient(90deg, rgba(77,208,225,0.12), rgba(77,208,225,0.06));
-      padding:8px 12px;border-radius:8px;color:var(--accent);font-weight:600;border:1px solid rgba(77,208,225,0.06);
-      font-size:0.88rem;
+
+    section {
+        margin-bottom: 50px;
+        padding: 20px;
+        border: 1px solid #333;
+        border-radius: 10px;
+        background: #111;
     }
-    .small{font-size:0.82rem;color:var(--muted)}
-    aside .card{position:sticky;top:20px}
-    footer{max-width:1100px;margin:28px auto;color:var(--muted);font-size:0.9rem;padding:0 20px 60px}
-    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);color:var(--muted);font-weight:600;font-size:0.82rem}
-    .dep{font-size:0.82rem;color:var(--muted);margin-top:6px}
-    .tag{font-size:0.78rem;background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:8px;color:var(--muted);margin-right:6px}
-  </style>
+
+    .toc {
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: 280px;
+        height: 100%;
+        background: #111;
+        border-left: 1px solid #333;
+        padding: 20px;
+        overflow-y: auto;
+        box-sizing: border-box;
+    }
+
+    .toc h2 {
+        font-size: 20px;
+        margin-top: 0;
+        color: #d4af37;
+    }
+
+    .toc a {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .mod {
+        margin: 10px 0;
+        padding: 10px 15px;
+        border-left: 3px solid #d4af37;
+        background: #0f0f0f;
+    }
+
+    .mod-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 4px;
+        color: #d4af37;
+    }
+
+    .mod-desc {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+
+    .mod-links {
+        font-size: 14px;
+    }
+
+</style>
 </head>
 <body>
-  <header>
-    <h1>Mods — thematisch sortiert</h1>
-    <p>Alle Mods sind einzeln gelistet (Namen unverändert). Kurze Beschreibung, Dependencies und Modrinth-Link / Suchlink.</p>
-  </header>
-
-  <main class="container">
-    <div class="grid">
-      <div>
-        <!-- Core libraries & APIs -->
-        <section class="card">
-          <div class="section-title"><h2>Core libraries &amp; APIs</h2><span>Basis für viele Mods</span></div>
-          <div class="mods">
-            <div class="mod">
-              <div>
-                <h3>Architectury API</h3>
-                <div class="meta">API, die Cross-loader-Kompatibilität (Forge/Quilt/Fabric) erleichtert. Nützlich für Multi-loader Mods.</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric Loader (oder anderes, je nach Build)</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/mod/architectury-api" target="_blank" rel="noopener">Modrinth</a>
-                <span class="small">Official page</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Fabric API</h3>
-                <div class="meta">Die zentrale API-Bibliothek für Fabric-Mods — fast immer benötigt.</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric Loader (versionsspezifisch)</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/mod/fabric-api" target="_blank" rel="noopener">Modrinth</a>
-                <span class="small">Essential</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Fabric Language Kotlin</h3>
-                <div class="meta">Laufzeit / Helpers für Mods, die in Kotlin geschrieben sind.</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric API / Fabric Loader</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Fabric%20Language%20Kotlin" target="_blank" rel="noopener">Suche auf Modrinth</a>
-                <span class="small">search</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YetAnotherConfigLib (YACL)</h3>
-                <div class="meta">Mod-Konfigurationsbibliothek mit moderner UI (builder-basiert).</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric API üblicherweise</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=YetAnotherConfigLib" target="_blank" rel="noopener">Suche auf Modrinth</a>
-                <span class="small">config library</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Text Placeholder API</h3>
-                <div class="meta">API zum Parsen von Platzhaltern/Variablen in Texten (HUDs, Statusanzeigen).</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric API ggf. Fabric Language Kotlin</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Text%20Placeholder%20API" target="_blank" rel="noopener">Suche auf Modrinth</a>
-                <span class="small">placeholder API</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>TerraBlender</h3>
-                <div class="meta">Hilfsbibliothek zum Registrieren und Zusammensetzen von Biomen (neuere Biome-Systeme).</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric Loader</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=TerraBlender" target="_blank" rel="noopener">Suche auf Modrinth</a>
-                <span class="small">biome library</span>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- Performance & Rendering -->
-        <section class="card" style="margin-top:18px">
-          <div class="section-title"><h2>Performance, Rendering &amp; Optimization</h2><span>FPS, Culling, Visual options</span></div>
-          <div class="mods">
-            <div class="mod">
-              <div>
-                <h3>Sodium</h3>
-                <div class="meta">Eine der größten Rendering-Optimierungen für den Client — stark bessere FPS &amp; weniger Micro-stutter.</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric Loader; viele Addons erfordern Sodium.</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/mod/sodium" target="_blank" rel="noopener">Modrinth</a>
-                <span class="small">render optimizer</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Sodium Extra</h3>
-                <div class="meta">OptiFine-like eye-candy Optionen für Sodium (visuelle Verbesserungen &amp; Fixes).</div>
-                <div class="dep"><strong>Dependencies:</strong> Sodium</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/mod/sodium-extra" target="_blank" rel="noopener">Modrinth</a>
-                <span class="small">sodium addon</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Reese’s Sodium Options</h3>
-                <div class="meta">Alternative Options-UI für Sodium mit mehr Einstellungsknöpfen.</div>
-                <div class="dep"><strong>Dependencies:</strong> Sodium</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Reese%E2%80%99s%20Sodium%20Options" target="_blank" rel="noopener">Suche auf Modrinth</a>
-                <span class="small">options UI</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Sodium Dynamic Lights</h3>
-                <div class="meta">Dynamische Lichtquellen (Fackeln in der Hand leuchten etc.), kompatibel mit Sodium.</div>
-                <div class="dep"><strong>Dependencies:</strong> Sodium</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Sodium%20Dynamic%20Lights" target="_blank" rel="noopener">Suche auf Modrinth</a>
-                <span class="small">dynamic lights</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Sodium Leaf Culling</h3>
-                <div class="meta">Smarter Leaf-Culling für bessere Performance in waldreichen Bereichen.</div>
-                <div class="dep"><strong>Dependencies:</strong> Sodium</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Sodium%20Leaf%20Culling" target="_blank" rel="noopener">Suche auf Modrinth</a>
-                <span class="small">leaf optimization</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Lithium</h3>
-                <div class="meta">Allgemeine Spiel-/Server-Optimierungen (Ticking, mob AI, Physics tweaks).</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric Loader (client/server)</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Lithium" target="_blank" rel="noopener">Suche auf Modrinth</a>
-                <span class="small">performance</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>FerritCore</h3>
-                <div class="meta">Reduziert Speicherverbrauch durch internen Optimierungen (gut für RAM-sensitive Setups).</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric Loader</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=FerritCore" target="_blank" rel="noopener">Suche auf Modrinth</a>
-                <span class="small">memory optim</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Entity Culling</h3>
-                <div class="meta">Vermeidet Rendering von komplett verdeckten Entities — spart CPU/GPU.</div>
-                <div class="dep"><strong>Dependencies:</strong> meist Fabric, prüfen für Version/Variant</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Entity%20Culling" target="_blank" rel="noopener">Suche auf Modrinth</a>
-                <span class="small">render culling</span>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- Models, Animations & Avatare -->
-        <section class="card" style="margin-top:18px">
-          <div class="section-title"><h2>Models, Animations &amp; Avatare</h2><span>Figura, GeckoLib &amp; Co.</span></div>
-          <div class="mods">
-
-            <div class="mod">
-              <div>
-                <h3>[EMF] Entity Model Features</h3>
-                <div class="meta">Library/Addon für erweiterte Entity-Model-Funktionen (Animation/Model features).</div>
-                <div class="dep"><strong>Dependencies:</strong> häufig Geckolib / Fabric API</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=%5BEMF%5D%20Entity%20Model%20Features" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>[ESF] Entity Sound Features</h3>
-                <div class="meta">Erweitert Sound-Events / Features für Entities.</div>
-                <div class="dep"><strong>Dependencies:</strong> ggf. Sound APIs / Fabric</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=%5BESF%5D%20Entity%20Sound%20Features" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>[ETF] Entity Texture Features</h3>
-                <div class="meta">Ergänzt Textur-Layer / Varianten für Entities.</div>
-                <div class="dep"><strong>Dependencies:</strong> meist Fabric API</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=%5BETF%5D%20Entity%20Texture%20Features" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Geckolib</h3>
-                <div class="meta">3D-Animations/Render-Engine für komplexe Keyframe-Animationen; verbreitet in Creatures &amp; Custom Entities.</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric Loader; Versionsabhängig</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/mod/geckolib" target="_blank" rel="noopener">Modrinth</a>
-                <span class="small">animation engine</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Figura</h3>
-                <div class="meta">Client-seitige Avatar/Player-Model Plattform (erweiterte, skriptbare Avatare).</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric Client</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Figura" target="_blank" rel="noopener">Suche auf Modrinth</a>
-                <span class="small">player models</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Figura v5 support</h3>
-                <div class="meta">Kompatibilitäts-Addon, damit Figura Blockbench v5 Model-Files lädt.</div>
-                <div class="dep"><strong>Dependencies:</strong> Figura</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Figura%20v5%20support" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>FiguraSVC</h3>
-                <div class="meta">Brücke zwischen Figura und Simple Voice Chat (macht Avatare voice-aware).</div>
-                <div class="dep"><strong>Dependencies:</strong> Figura, Simple Voice Chat (empfohlen)</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=FiguraSVC" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Not Enough Animations</h3>
-                <div class="meta">Fügt viele fehlende Third-Person / Übergangs-Animationen hinzu — nützlich mit Custom Avataren.</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Not%20Enough%20Animations" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Not Enough Pots</h3>
-                <div class="meta">Mehr Pflanzen/Varianten in Blumentöpfen — einfache Deko/QoL.</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Not%20Enough%20Pots" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- UI & QoL -->
-        <section class="card" style="margin-top:18px">
-          <div class="section-title"><h2>UI, Input &amp; QoL</h2><span>Inventar, Steuerung, REI</span></div>
-          <div class="mods">
-            <div class="mod">
-              <div>
-                <h3>Mod Menu</h3>
-                <div class="meta">Zeigt installierte Mods &amp; deren Config-Buttons im Spiel an — fast Standard in Modpacks.</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Mod%20Menu" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Controlling</h3>
-                <div class="meta">Verbessert das Keybind-Management (suchen/filtern/setzen von Tasten einfacher).</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Controlling" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Continuity</h3>
-                <div class="meta">Kleine UI-Feinheiten (Hotbar/Inventory tweaks).</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Continuity" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>MidnightControls</h3>
-                <div class="meta">Alternative / erweiterte Steuerungsoptionen.</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=MidnightControls" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Roughly Enough Items (REI)</h3>
-                <div class="meta">Item/Recipe Viewer (JEI-Alternative). Viele REI-Addons existieren.</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Roughly%20Enough%20Items%20(REI)" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Roughly Enough Input Methods</h3>
-                <div class="meta">Eingabe-Verbesserungen (z. B. Pinyin) für REI/Suchfelder.</div>
-                <div class="dep"><strong>Dependencies:</strong> REI</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Roughly%20Enough%20Input%20Methods" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Roughly Enough Professions (REP)</h3>
-                <div class="meta">REI-Addon: zeigt Berufe/Workstations &amp; Infos an.</div>
-                <div class="dep"><strong>Dependencies:</strong> REI</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Roughly%20Enough%20Professions" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Searchables</h3>
-                <div class="meta">Mehrere kleine Mods, die Suchleisten und Hervorhebungen in GUIs hinzufügen.</div>
-                <div class="dep"><strong>Dependencies:</strong> meist REI/Mod Menu (variiert)</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Searchables" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Zoomify</h3>
-                <div class="meta">Konfigurierbarer Zoom-Mod (Hotkey, Smooth Zoom, UI Optionen).</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Zoomify" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- Sound & Voice -->
-        <section class="card" style="margin-top:18px">
-          <div class="section-title"><h2>Sound, Voice &amp; Audio-Physics</h2><span>Proximity voice &amp; realistic sound</span></div>
-          <div class="mods">
-            <div class="mod">
-              <div>
-                <h3>Simple Voice Chat</h3>
-                <div class="meta">Proximity-Voice Chat (Client + Server). Sehr beliebt für kleine Server.</div>
-                <div class="dep"><strong>Dependencies:</strong> eigenes client/server setup möglich</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Simple%20Voice%20Chat" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Sound Physics Remastered</h3>
-                <div class="meta">Realistischere Schallausbreitung, Dämpfung &amp; Nachhall (kann mit VoiceChat interagieren).</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Sound%20Physics%20Remastered" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- Shaders, Mapping, VR -->
-        <section class="card" style="margin-top:18px">
-          <div class="section-title"><h2>Shaders, Mapping &amp; VR</h2><span>Iris, JourneyMap, Vivecraft</span></div>
-          <div class="mods">
-            <div class="mod">
-              <div>
-                <h3>Iris Shaders</h3>
-                <div class="meta">Moderne Shader-Loader, bringt Shaderpacks zu Fabric/Iris + Sodium; gute Kompatibilität.</div>
-                <div class="dep"><strong>Dependencies:</strong> Sodium empfohlen</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/mod/iris" target="_blank" rel="noopener">Modrinth</a>
-                <span class="small">shader loader</span>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>JourneyMap</h3>
-                <div class="meta">Live-Map + Minimap + Webmap — mächtig für Erkundung &amp; Orientierung.</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric (client) / server optional</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=JourneyMap" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Vivecraft</h3>
-                <div class="meta">VR-Portierung (SteamVR). Installer &amp; spezielle Builds — nicht immer als normaler Mod verfügbar.</div>
-                <div class="dep"><strong>Dependencies:</strong> SteamVR / VR-hardware</div>
-              </div>
-              <div class="links">
-                <a href="https://irisshaders.dev/" target="_blank" rel="noopener">Iris / related info</a>
-                <a href="https://modrinth.com/search?q=Vivecraft" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- Origins & Addons -->
-        <section class="card" style="margin-top:18px">
-          <div class="section-title"><h2>Origins &amp; Addons</h2><span>Origins Basis + viele Addons</span></div>
-          <div class="mods">
-            <div class="mod">
-              <div>
-                <h3>Origins</h3>
-                <div class="meta">Basismod für das Origins-System (wählbare „Rassen“ mit Vor-/Nachteilen).</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Origins" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>End Origins</h3>
-                <div class="meta">Origin-Addon für End-Themen; evtl. auf CurseForge statt Modrinth gelistet.</div>
-                <div class="dep"><strong>Dependencies:</strong> Origins</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=End%20Origins" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Origins Size-shifter</h3>
-                <div class="meta">Adds Origins that change player size (vergrößern/verkleinern). Häufig Pehkui erforderlich.</div>
-                <div class="dep"><strong>Dependencies:</strong> Origins, Pehkui</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Origins%20Size-shifter" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Origins Spirits</h3>
-                <div class="meta">Sammlung elementarer Origins (Feuer, Wasser, Geist usw.).</div>
-                <div class="dep"><strong>Dependencies:</strong> Origins</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Origins%20Spirits" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Origins: Enderxolotl</h3>
-                <div class="meta">Ender-/Axolotl-Hybrid Origin (meist Datapack/Addon).</div>
-                <div class="dep"><strong>Dependencies:</strong> Origins</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Origins%3A%20Enderxolotl" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Origins: Imp (Fabric)</h3>
-                <div class="meta">Imp Origin als Fabric-Addon / Datapack.</div>
-                <div class="dep"><strong>Dependencies:</strong> Origins</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Origins%3A%20Imp%20(Fabric)" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Witherborn Origins</h3>
-                <div class="meta">Origins-Addon mit Wither/Undead Themen; evtl. primär auf CurseForge gelistet.</div>
-                <div class="dep"><strong>Dependencies:</strong> Origins</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Witherborn%20Origins" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Pehkui</h3>
-                <div class="meta">Größen/Scale-Library, häufig von Origins-Addons benutzt (size scaling).</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=Pehkui" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>William Wythers‘ Overhauled Overworld</h3>
-                <div class="meta">Umfassendes Overworld-Datapack/Mod: Biome, Colors und Sub-Biomes überarbeitet.</div>
-                <div class="dep"><strong>Dependencies:</strong> Datapack/Mod variiert</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=William%20Wythers%20Overhauled%20Overworld" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- YUNG's worldgen -->
-        <section class="card" style="margin-top:18px">
-          <div class="section-title"><h2>YUNG’s World-Generation / Structure Mods</h2><span>Alle einzeln gelistet</span></div>
-          <div class="mods">
-            <div class="mod">
-              <div>
-                <h3>YUNG’s API</h3>
-                <div class="meta">Hilfs-API, die viele YUNG’s Mods als gemeinsame Basis nutzen.</div>
-                <div class="dep"><strong>Dependencies:</strong> Fabric</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20API" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Better Caves</h3>
-                <div class="meta">Höhlenüberarbeitung — neue Biome &amp; Formationen unter der Erde.</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API (meist)</div>
-              </div>
-              <div class="links">
-                <a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Better%20Caves" target="_blank" rel="noopener">Suche</a>
-              </div>
-            </div>
-
-            <!-- Remaining YUNG mods (each listed individually as requested) -->
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Better Dungeons</h3>
-                <div class="meta">Neue/überarbeitete Dungeons &amp; Strukturgenerierung.</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Better%20Dungeons" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Better Desert Temples</h3>
-                <div class="meta">Erweitert Desert Temples mit Fallen, Loot &amp; Design.</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Better%20Desert%20Temples" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Better End Island</h3>
-                <div class="meta">Überarbeitet die Haupt-End-Insel (Dragon-Arena etc.).</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Better%20End%20Island" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Better Jungle Temples</h3>
-                <div class="meta">Erweitert Jungle Temples (Rätsel, Fallen, Loot).</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Better%20Jungle%20Temples" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Better Mineshafts</h3>
-                <div class="meta">Überarbeitete Minenschächte (mehr Variationen &amp; Gefahren).</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Better%20Mineshafts" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Better Nether Fortresses</h3>
-                <div class="meta">Baut Nether Fortresses um — mehr Strukturen &amp; Vielfalt.</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Better%20Nether%20Fortresses" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Better Ocean Monuments</h3>
-                <div class="meta">Mehr Komplexität und Design für Ocean Monuments.</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Better%20Ocean%20Monuments" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Better Strongholds</h3>
-                <div class="meta">Stärkere, variablere Strongholds (mehr Räume, Rätsel).</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Better%20Strongholds" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Better Witch Huts</h3>
-                <div class="meta">Überarbeitete Witch Huts mit mehr Inhalt &amp; Loot.</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Better%20Witch%20Huts" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Bridges</h3>
-                <div class="meta">Generiert natürliche Brückenstrukturen beim Weltenaufbau.</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Bridges" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Cave Bioms</h3>
-                <div class="meta">Fügt neue Höhlen-Biomes &amp; Features hinzu.</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Cave%20Bioms" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Extras</h3>
-                <div class="meta">Kleine Zusatzstrukturen &amp; Feinheiten, ergänzt die YUNG-Serie.</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Extras" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>YUNG’s Menu Tweaks</h3>
-                <div class="meta">Kleine Menü-Verbesserungen (client-side) für YUNG’s Mods.</div>
-                <div class="dep"><strong>Dependencies:</strong> YUNG’s API / Fabric</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=YUNG%E2%80%99s%20Menu%20Tweaks" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- Misc singletons -->
-        <section class="card" style="margin-top:18px">
-          <div class="section-title"><h2>Sonstiges &amp; Einzelmods</h2><span>Kleinigkeiten &amp; Extras</span></div>
-          <div class="mods">
-
-            <div class="mod">
-              <div>
-                <h3>Architectury API</h3>
-                <div class="meta">(Bereits oben gelistet; doppelt auftauchende Bibliotheken sind bewusst als einzelne Einträge möglich.)</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/mod/architectury-api" target="_blank" rel="noopener">Modrinth</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Zoomify</h3>
-                <div class="meta">(nochmal) schnelles &amp; glattes Zooming.</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=Zoomify" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Text Placeholder API</h3>
-                <div class="meta">(nochmal) placeholder parsing für UI-Strings.</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=Text%20Placeholder%20API" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>Vivecraft</h3>
-                <div class="meta">(VR) spezielle Installation — nicht immer konservativ über Modrinth verteilt.</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=Vivecraft" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-            <div class="mod">
-              <div>
-                <h3>William Wythers‘ Overhauled Overworld</h3>
-                <div class="meta">(Datapack/Overhaul) Biome/Color/World tweaks — meist als Datapack auf Modrinth.</div>
-              </div>
-              <div class="links"><a href="https://modrinth.com/search?q=William%20Wythers%20Overhauled%20Overworld" target="_blank" rel="noopener">Suche</a></div>
-            </div>
-
-          </div>
-        </section>
-
-      </div>
-
-      <aside>
-        <div class="card" style="margin-top:18px">
-          <h3>Extras</h3>
-          <p class="small">Tip: Wenn du diese Seite als lokale Referenz willst, speichere sie als HTML.</p>
-          <p class="small">Tip: Download link kommt bald.</p>
-          <div style="margin-top:8px">
-            <a href="#top" class="pill" style="text-decoration:none">Zurück nach oben ↑</a>
-          </div>
-        </div>
-      </aside>
-    </div>
-  </main>
-
-  <footer>
-    <div>Quellen (Beispiele / Ausgangspunkte): Fabric API, Sodium, Iris Shaders, GeckoLib, Architectury (Modrinth). Für alle anderen Mods habe ich Modrinth-Suchlinks hinterlegt — dadurch findest du die exakte Projekt-/Downloadseite mit einem Klick.</div>
-  </footer>
+
+<div class="toc">
+    <h2>Inhalt</h2>
+    <a href="#core">Core Libraries & APIs</a>
+    <a href="#performance">Performance & Rendering</a>
+    <a href="#models">Modelle & Animationen</a>
+    <a href="#ui">UI & QoL</a>
+    <a href="#sound">Sound & Voice</a>
+    <a href="#visual">Mapping, Shaders & VR</a>
+    <a href="#origins">Origins & Addons</a>
+    <a href="#yungs">YUNG’s Worldgen</a>
+</div>
+
+<div class="container">
+
+<h1>Modliste</h1>
+
+
+<!-- ===================== CORE ===================== -->
+
+<section id="core">
+<h2>Core Libraries & APIs</h2>
+
+<div class="mod">
+    <div class="mod-title">Architectury API</div>
+    <div class="mod-desc">Cross-loader API für viele Mods.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/architectury-api">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">AzureLib</div>
+    <div class="mod-desc">Hilfsbibliothek für Animationen & Model-Handling.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/azurelib">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Cloth Config API</div>
+    <div class="mod-desc">Standard-Config-Library für viele Mods.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/cloth-config">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Fabric API</div>
+    <div class="mod-desc">Zentrale API für alle Fabric-Mods.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/fabric-api">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Fabric Language Kotlin</div>
+    <div class="mod-desc">Kotlin-Support für Minecraft Mods.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/fabric-language-kotlin">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YetAnotherConfigLib (YACL)</div>
+    <div class="mod-desc">Moderne Konfigurations-Bibliothek.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yacl">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Searchables</div>
+    <div class="mod-desc">Verbesserte Suchsysteme in vielen GUIs.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/searchables">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Text Placeholder API</div>
+    <div class="mod-desc">Variablen/Platzhalter in Texten.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/text-placeholder-api">Modrinth</a></div>
+</div>
+
+</section>
+
+
+<!-- ===================== PERFORMANCE ===================== -->
+
+<section id="performance">
+<h2>Performance & Rendering</h2>
+
+<div class="mod">
+    <div class="mod-title">Sodium</div>
+    <div class="mod-desc">Großer FPS-Boost, moderner Renderer.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/sodium">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Sodium Extra</div>
+    <div class="mod-desc">Viele zusätzliche Optionen für Sodium.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/sodium-extra">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Reese’s Sodium Options</div>
+    <div class="mod-desc">Verbessertes Options-Menü für Sodium.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/reeses-sodium-options">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Sodium Dynamic Lights</div>
+    <div class="mod-desc">Dynamische Lichtquellen für Sodium.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/dynamiclights">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Sodium Leaf Culling</div>
+    <div class="mod-desc">Effizienteres Rendern von Blättern.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/sodium-leaf-culling">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Sodium Options API</div>
+    <div class="mod-desc">API für Erweiterungen des Sodium-Optionenmenüs.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/sodium-options-api">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Lithium</div>
+    <div class="mod-desc">Optimiert Physik, AI, Ticking & Weltlogik.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/lithium">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">FerritCore</div>
+    <div class="mod-desc">Reduziert RAM-Nutzung deutlich.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/ferrite-core">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Entity Culling</div>
+    <div class="mod-desc">Versteckte Entities werden nicht gerendert.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/entityculling">Modrinth</a></div>
+</div>
+
+</section>
+
+
+<!-- ===================== MODELS ===================== -->
+
+<section id="models">
+<h2>Modelle & Animationen</h2>
+
+<div class="mod">
+    <div class="mod-title">[EMF] Entity Model Features</div>
+    <div class="mod-desc">Erweiterte Modellfunktionen für Entities.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/emf">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">[ESF] Entity Sound Features</div>
+    <div class="mod-desc">Neue Sound-Features für Entities.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/esf">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">[ETF] Entity Texture Features</div>
+    <div class="mod-desc">Mehr Textur-Variationen für Entities.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/etf">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Geckolib</div>
+    <div class="mod-desc">Professionelle 3D-Animations-Bibliothek.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/geckolib">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Figura</div>
+    <div class="mod-desc">Skriptbare, hochgradig anpassbare Player-Models.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/figura">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Figura v5 support</div>
+    <div class="mod-desc">Kompatibilität für neue Figura-Modelle.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/figurav5">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">FiguraSVC</div>
+    <div class="mod-desc">Verknüpft Figura mit Simple Voice Chat.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/figurasvc">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Not Enough Animations</div>
+    <div class="mod-desc">Mehr Third-Person-Animationen.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/not-enough-animations">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Not Enough Pots</div>
+    <div class="mod-desc">Mehr pflanzen in Blumentöpfen.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/not-enough-pots">Modrinth</a></div>
+</div>
+
+</section>
+
+
+<!-- ===================== UI ===================== -->
+
+<section id="ui">
+<h2>UI & Quality of Life</h2>
+
+<div class="mod">
+    <div class="mod-title">Mod Menu</div>
+    <div class="mod-desc">In-Game Mod-Liste und Konfiguration.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/modmenu">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Controlling</div>
+    <div class="mod-desc">Verbesserte Keybind-Suche & Verwaltung.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/controlling">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Continuity</div>
+    <div class="mod-desc">Feinschliff für UI-Darstellung.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/continuity">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">MidnightControls</div>
+    <div class="mod-desc">Erweiterte Controller-Steuerung.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/midnightcontrols">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Roughly Enough Items (REI)</div>
+    <div class="mod-desc">Item & Recipe Browser.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/rei">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Roughly Enough Input Methods</div>
+    <div class="mod-desc">Erweiterte Eingabemethoden für REI.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/roughly-enough-input-methods">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Roughly Enough Professions</div>
+    <div class="mod-desc">Zeigt Villager-Berufe und Workstations an.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/roughly-enough-professions">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Zoomify</div>
+    <div class="mod-desc">Erweiterte Zoom-Funktion.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/zoomify">Modrinth</a></div>
+</div>
+
+</section>
+
+
+<!-- ===================== SOUND ===================== -->
+
+<section id="sound">
+<h2>Sound, Voice & Audio-Physics</h2>
+
+<div class="mod">
+    <div class="mod-title">Simple Voice Chat</div>
+    <div class="mod-desc">Proximity-Voice-Chat.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/simple-voice-chat">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Sound Physics Remastered</div>
+    <div class="mod-desc">Reverb, Echolokation, realistischer Schall.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/sound-physics-remastered">Modrinth</a></div>
+</div>
+
+</section>
+
+
+<!-- ===================== VISUAL ===================== -->
+
+<section id="visual">
+<h2>Mapping, Shaders & VR</h2>
+
+<div class="mod">
+    <div class="mod-title">Iris Shaders</div>
+    <div class="mod-desc">Moderne Shader-Engine.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/iris">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">JourneyMap</div>
+    <div class="mod-desc">Minimap & Weltkarte.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/journeymap">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Vivecraft</div>
+    <div class="mod-desc">Minecraft VR-Version.</div>
+    <div class="mod-links"><a href="https://www.vivecraft.org/">Webseite</a></div>
+</div>
+
+</section>
+
+
+<!-- ===================== ORIGINS ===================== -->
+
+<section id="origins">
+<h2>Origins & Addons</h2>
+
+<div class="mod">
+    <div class="mod-title">Origins</div>
+    <div class="mod-desc">Spielbare Rassen/Abilities.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/origins">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">End Origins</div>
+    <div class="mod-desc">End-basierte Origins. (Nicht auf Modrinth.)</div>
+    <div class="mod-links"><a href="https://www.curseforge.com/minecraft/mc-mods/end-origins">CurseForge</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Origins Size-shifter</div>
+    <div class="mod-desc">Größen-Wechsel Origin.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/origins-size-shifter">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Origins Spirits</div>
+    <div class="mod-desc">Elementare „Spirit“ Origins.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/origins-spirits">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Origins: Enderxolotl</div>
+    <div class="mod-desc">Ender-Axolotl-Origin.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/enderxolotl-origin">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Origins: Imp (Fabric)</div>
+    <div class="mod-desc">Imp-Origin.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/imp-origin">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Witherborn Origins</div>
+    <div class="mod-desc">Wither-artiges Origin.</div>
+    <div class="mod-links"><a href="https://www.curseforge.com/minecraft/mc-mods/witherborn">CurseForge</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">Pehkui</div>
+    <div class="mod-desc">Skalierungs-API.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/pehkui">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">William Wythers‘ Overhauled Overworld</div>
+    <div class="mod-desc">Komplettes Biome-Overhaul.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/overhauled-overworld">Modrinth</a></div>
+</div>
+
+</section>
+
+
+<!-- ===================== YUNGS ===================== -->
+
+<section id="yungs">
+<h2>YUNG’s World-Generation</h2>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s API</div>
+    <div class="mod-desc">Grundlage für alle YUNG-Mods.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-api">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Better Caves</div>
+    <div class="mod-desc">Überarbeitete Höhlen.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-better-caves">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Better Desert Temples</div>
+    <div class="mod-desc">Neue Wüstentempel.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-better-desert-temples">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Better Dungeons</div>
+    <div class="mod-desc">Neue und bessere Dungeons.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-better-dungeons">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Better End Island</div>
+    <div class="mod-desc">Neue End-Startinsel.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-better-end-island">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Better Jungle Temples</div>
+    <div class="mod-desc">Neue Dschungeltempel.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-better-jungle-temples">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Better Mineshafts</div>
+    <div class="mod-desc">Neue Minenschächte.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-better-mineshafts">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Better Nether Fortresses</div>
+    <div class="mod-desc">Überarbeitete Netherfestungen.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-better-nether-fortresses">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Better Ocean Monuments</div>
+    <div class="mod-desc">Neue Ozeanmonumente.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-better-ocean-monuments">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Better Strongholds</div>
+    <div class="mod-desc">Komplexere Strongholds.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-better-strongholds">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Better Witch Huts</div>
+    <div class="mod-desc">Verbesserte Hexenhütten.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-better-witch-huts">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Bridges</div>
+    <div class="mod-desc">Natürliche Brückenstrukturen.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-bridges">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Cave Bioms</div>
+    <div class="mod-desc">Biome in Höhlen.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-cave-biomes">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Extras</div>
+    <div class="mod-desc">Kleine zusätzliche Strukturen.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-extras">Modrinth</a></div>
+</div>
+
+<div class="mod">
+    <div class="mod-title">YUNG’s Menu Tweaks</div>
+    <div class="mod-desc">Verbessertes Menü-Design.</div>
+    <div class="mod-links"><a href="https://modrinth.com/mod/yungs-menu-tweaks">Modrinth</a></div>
+</div>
+
+</section>
+
+</div>
 </body>
 </html>
