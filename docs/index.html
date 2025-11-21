@@ -435,15 +435,28 @@ document.addEventListener("DOMContentLoaded", () => {
         const slug = mod.getAttribute("data-modrinth");
         const img = mod.querySelector(".mod-icon");
 
+        if (slug.toLowerCase() === "curseforge") {
+            img.src = "https://cdn.apexminecrafthosting.com/img/uploads/2021/05/21163117/curseforge-logo.png";
+            img.alt = "CurseForge Logo";
+            return;
+        }
+
         fetch(`https://api.modrinth.com/v2/project/${slug}`)
             .then(r => r.json())
             .then(data => {
                 if (data.icon_url) {
                     img.src = data.icon_url;
                     img.alt = slug + " icon";
+                } else {
+                    img.src = "https://img.freepik.com/premium-vector/default-image-icon-vector-missing-picture-page-website-design-mobile-app-no-photo-available_87543-11093.jpg?w=360";
+                    img.alt = "Icon fehlt";
                 }
             })
-            .catch(e => console.error("Icon Fehler:", slug, e));
+            .catch(e => {
+                console.error("Icon Fehler:", slug, e);
+                img.src = "https://img.freepik.com/premium-vector/default-image-icon-vector-missing-picture-page-website-design-mobile-app-no-photo-available_87543-11093.jpg?w=360";
+                img.alt = "Icon Fehler";
+            });
     });
 });
 </script>
